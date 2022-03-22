@@ -23,6 +23,15 @@ class PickupPoint:
         self.name = name
 
 
+def startApp(frameApp):
+    rv = wx.PyApp.MainLoop(frameApp)
+    frameApp.RestoreStdio()
+
+
+###########################################################################
+## Class MyFrame1
+###########################################################################
+
 class MyFrame1(wx.Frame):
 
     def __init__(self, parent):
@@ -118,7 +127,7 @@ class MyFrame1(wx.Frame):
                                       wx.DefaultSize, wx.BU_AUTODRAW | 0)
 
         self.stopBT.SetBitmap(wx.Bitmap(u"stop.bmp", wx.BITMAP_TYPE_ANY))
-        gbSizer7.Add(self.stopBT, wx.GBPosition(15, 29), wx.GBSpan(1, 1), wx.ALL, 5)
+        gbSizer7.Add(self.stopBT, wx.GBPosition(15, 29), wx.GBSpan(1, 1), wx.ALL | wx.EXPAND, 5)
 
         sbSizer3.Add(gbSizer7, 1, wx.EXPAND, 5)
 
@@ -126,15 +135,23 @@ class MyFrame1(wx.Frame):
         self.Layout()
 
         self.Centre(wx.BOTH)
-        self.Show()
+
+        # Connect Events
+        self.stopBT.Bind(wx.EVT_BUTTON, self.stop)
 
     def __del__(self):
         pass
+
+    def stop(self, event):
+        programState = Modes.stop
+        print("Stopped")
+        self.Skip()
 
 
 ###########################################################################
 ## Class MyFrame2
 ###########################################################################
+
 
 class MyFrame2(wx.Frame):
 
@@ -143,6 +160,8 @@ class MyFrame2(wx.Frame):
                           size=wx.Size(500, 300), style=wx.DEFAULT_FRAME_STYLE | wx.TAB_TRAVERSAL)
 
         self.SetSizeHints(wx.DefaultSize, wx.DefaultSize)
+
+        self.programState = Modes.stop
 
         self.m_toolBar2 = self.CreateToolBar(wx.TB_HORIZONTAL, wx.ID_ANY)
         self.commandsTool = self.m_toolBar2.AddTool(wx.ID_ANY, u"tool", wx.Bitmap(u"sudoku.ico", wx.BITMAP_TYPE_ANY),
@@ -165,10 +184,23 @@ class MyFrame2(wx.Frame):
         self.Layout()
 
         self.Centre(wx.BOTH)
-        self.Show()
+
+        # Connect Events
+        self.startBT.Bind(wx.EVT_BUTTON, self.start)
+        self.stopBT.Bind(wx.EVT_BUTTON, self.stop)
 
     def __del__(self):
         pass
+
+    # Virtual event handlers, override them in your derived class
+
+    def start(self, event):
+        self.programState = Modes.run
+        event.Skip()
+
+    def stop(self, event):
+        self.programState = Modes.stop
+        event.Skip()
 
 
 def main():
@@ -177,7 +209,7 @@ def main():
     mainDeliveryPoint = DeliveryPoint([0, 1.57, -1.57, 3.14, -1.57, 1.57], "Main")
     mainPickupPoint = PickupPoint([0, 1.57, -1.57, 3.14, -1.57, 1.57], "Main")
 
-    rob = urx.Robot("localhost")
+    # rob = urx.Robot("localhost")
     # The below set up is a random/default for the TCP and payload. Details on the numbers to put in is in the link below
     # https://academy.universal-robots.com/modules/e-Series%20core%20track/English/module3/story_html5.html?courseId=2166&language=English
     # rob.set_tcp((0, 0, 0.1, 0, 0, 0))
@@ -189,13 +221,23 @@ def main():
     app = wx.App()
     frame1 = MyFrame1(parent=None)
     frame2 = MyFrame2(parent=None)
-    app.MainLoop()
-
+    # app.MainLoop()
+    print("Starting")
+    startApp(app)
+    print("a")
     while True:
-
+        print(frame2.programState)
+        frame2.Show()
+        if frame2.programState == Modes.run:
+            programState = Modes.run
+            print("a")
+        print("Stopped")
+        time.sleep(2)
         while programState == Modes.run:
-            True
-
+            print("Main loop running")
+            time.sleep(2)
+            if frame2.programState == Modes.stop:
+                programState = Modes.stop
             # if found face that has delivery
             #   tell arm to go to pickup the spot
             #   tell arm to grab
