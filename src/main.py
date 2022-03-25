@@ -1,7 +1,7 @@
 import time
 import urx
 import enum
-
+import keyboard
 
 class Modes(enum.Enum):
     stop = 1
@@ -83,11 +83,52 @@ def printMenu():
     print("0) Exit")
 
 
+def setNewPickUp(arm):
+    print("You are about to enter free drive mode.")
+    print("In this mode the arm will unlock and allow you to")
+    print("psychically move the arm to the desired position.")
+    print("After entering 'go' the arm will unlock and at that")
+    print("time move the arm to the desired position. When done moving")
+    print("press the enter key to lock the arm and save the position.")
+    print("The free drive mode will timeout at 60 seconds if not ended.")
+    print("")
+    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    print("THE ARM MAY NOT BE ABLE TO SUPPORT ITS OWN WEIGHT HAVE")
+    print("ONE HAND ON THE ARM WHEN YOU START FREE DRIVE MODE")
+    print("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    print("")
+    while True:
+        print("Enter 'go' to start free drive mode.", end=':')
+        userChoice = input().lower()
+        if userChoice != "go":
+            break
+        else:
+            print("%s is not a valid option", userChoice)
+            print("")
+
+    arm.set_freedrive(True)
+    # This should start some timer that will end if the user presses enter however if they don't it will end the loop
+    print("The arm is in free drive mode, you can move it now.")
+    print("")
+    print("Press the enter key to lock the arm and save the position", end=':')
+
+    if input() == "":
+        arm.set_freedrive(False)
+
+    return arm.getj()
+    # This might need to be converted if so the function degreeToRads( variable ) should work
+
+
+
+
 def main():
     programState = Modes.stop
 
     mainDeliveryPoint = DeliveryPoint([0, 1.57, -1.57, 3.14, -1.57, 1.57], "Main")
     mainPickupPoint = PickupPoint([0, 1.57, -1.57, 3.14, -1.57, 1.57], "Main")
+
+    deliveryPointList = [mainDeliveryPoint]
+    pickupPointList = [mainPickupPoint]
 
     robotArm = urx.Robot("localhost")
     # The below set up is a random/default for the TCP and payload. Details on the numbers to put in is in the link below
@@ -95,23 +136,26 @@ def main():
     robotArm.set_tcp((0, 0, 0.1, 0, 0, 0))
     robotArm.set_payload(2, (0, 0, 0.1))
     time.sleep(0.2)  # leave some time to robot to process the setup commands
-
     print("Starting Main Loop")
     while True:
         printMenu()
         print(":")
         userChoice = int(input())
-        if userChoice == 1:
+        if userChoice == 1:  # Start Program
             programState = Modes.run
-        elif userChoice == 2:
+        elif userChoice == 2:  # something
             programState = Modes.stop
-        elif userChoice == 3:
+        elif userChoice == 3:  # something
             programState = Modes.stop
-        elif userChoice == 4:
+        elif userChoice == 4:  # Add Faces/Orders
             programState = Modes.stop
-        elif userChoice == 5:
+        elif userChoice == 5:  # Add Pick/Delivery Zones
+            # Need to add a thing to ask if they want to add a pick up or delivery point
+            # The data also need to be validated and i should make it so that people can enter their own joint values
+            # I already made the function for this  ^
+            deliveryPointList.append(setNewPickUp(robotArm))
             programState = Modes.stop
-        elif userChoice == 0:
+        elif userChoice == 0:  # Exit
             programState = Modes.stop
         print(programState)
 
