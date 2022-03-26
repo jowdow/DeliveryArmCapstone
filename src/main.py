@@ -3,6 +3,7 @@ import urx
 import enum
 import keyboard
 
+
 class Modes(enum.Enum):
     stop = 1
     run = 2
@@ -54,7 +55,7 @@ def radsToDegree(angle):
         return round(angle * 57.29578, 2)
 
 
-def arrDegreeToRads():
+def printDegreeToRads():
     jointNames = ["Base", "Shoulder", "Elbow", "Wrist 1", "Wrist 2", "Wrist 3"]
     jointsAngleRads = []
     for joints in jointNames:
@@ -74,6 +75,30 @@ def arrDegreeToRads():
     print("]")
 
 
+def arrDegreeToRads():
+    jointNames = ["Base", "Shoulder", "Elbow", "Wrist 1", "Wrist 2", "Wrist 3"]
+    jointsAngleRads = []
+    angleRad = 0
+    for joints in jointNames:
+        while True:
+            print("Give %s Angle in Degrees:" % joints, end='')
+            angleRad = round(float(input()) * 0.017453, 2)
+            if 6.28 > angleRad > -6.28:
+                jointsAngleRads.append(angleRad)
+                break
+            else:
+                print("%s is invalid rad")
+    return jointsAngleRads
+
+def validAngles(angles):
+    jointNames = ["Base", "Shoulder", "Elbow", "Wrist 1", "Wrist 2", "Wrist 3"]
+    for joint in angles:
+        if joint > 360 or joint < -360:
+            print("Angle %s is invalid, value: %s", jointNames[jointNames.index(joint)], joint)
+            return False
+    return True
+
+
 def printMenu():
     print("1) Start Program")
     print("2) something ")
@@ -83,7 +108,7 @@ def printMenu():
     print("0) Exit")
 
 
-def setNewPickUp(arm):
+def setNewArea(arm):
     print("You are about to enter free drive mode.")
     print("In this mode the arm will unlock and allow you to")
     print("psychically move the arm to the desired position.")
@@ -119,8 +144,6 @@ def setNewPickUp(arm):
     # This might need to be converted if so the function degreeToRads( variable ) should work
 
 
-
-
 def main():
     programState = Modes.stop
 
@@ -150,10 +173,18 @@ def main():
         elif userChoice == 4:  # Add Faces/Orders
             programState = Modes.stop
         elif userChoice == 5:  # Add Pick/Delivery Zones
+            userInput = input("Enter 0 for Pickup, 1 for delivery:", end='')
+            if userInput == "0":
+                userInput = input("Enter 0 for free drive mode, 1 for manual entering:", end='')
+                if userInput == "0":
+                    pickupPointList.append(setNewArea(robotArm))
+                elif userChoice == "1":
+                    pickupPointList.append()
+            elif userInput == "1":
+                deliveryPointList.append(setNewArea(robotArm))
             # Need to add a thing to ask if they want to add a pick up or delivery point
-            # The data also need to be validated and i should make it so that people can enter their own joint values
+            # The data also need to be validated and I should make it so that people can enter their own joint values
             # I already made the function for this  ^
-            deliveryPointList.append(setNewPickUp(robotArm))
             programState = Modes.stop
         elif userChoice == 0:  # Exit
             programState = Modes.stop
@@ -161,14 +192,9 @@ def main():
 
         while programState == Modes.run:
             print(robotArm.get_pos())
+            # start run function
             time.sleep(0.1)
 
-            # if found face that has delivery
-            #   tell arm to go to pickup the spot
-            #   tell arm to grab
-            #   tell arm to go to delivery spot
-            #   tell arm to drop
-            #   tell arm to go to wait stop
 
 
 if __name__ == '__main__':
