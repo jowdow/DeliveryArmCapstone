@@ -105,7 +105,7 @@ def printMenu():
     print("3) something")
     print("4) Add Faces/Orders")
     print("5) Add Pick/Delivery Zones")
-    print("0) Exit")
+    print("0) Exit", end='')
 
 
 def setNewArea(arm):
@@ -125,7 +125,7 @@ def setNewArea(arm):
     while True:
         print("Enter 'go' to start free drive mode.", end=':')
         userChoice = input().lower()
-        if userChoice != "go":
+        if userChoice == "go":
             break
         else:
             print("%s is not a valid option", userChoice)
@@ -152,8 +152,8 @@ def main():
 
     deliveryPointList = [mainDeliveryPoint]
     pickupPointList = [mainPickupPoint]
-
-    robotArm = urx.Robot("localhost")
+    # 192.168.50.2
+    robotArm = urx.Robot("192.168.50.2")
     # The below set up is a random/default for the TCP and payload. Details on the numbers to put in is in the link below
     # https://academy.universal-robots.com/modules/e-Series%20core%20track/English/module3/story_html5.html?courseId=2166&language=English
     robotArm.set_tcp((0, 0, 0.1, 0, 0, 0))
@@ -173,16 +173,20 @@ def main():
         elif userChoice == 4:  # Add Faces/Orders
             programState = Modes.stop
         elif userChoice == 5:  # Add Pick/Delivery Zones
-            userInput = input("Enter 0 for Pickup, 1 for delivery:", end='')
-            if userInput == "0":
-                userInput = input("Enter 0 for free drive mode, 1 for manual entering:", end='')
-                if userInput == "0":
-                    pickupPointList.append(setNewArea(robotArm))
-                elif userChoice == "1":
-                    pickupPointList.append()
-            elif userInput == "1":
-                deliveryPointList.append(setNewArea(robotArm))
-            # Need to add a thing to ask if they want to add a pick up or delivery point
+            # THIS ALL NEEDS TO BE VALIDATED
+            areaSelection = input("Enter 0 for Pickup, 1 for delivery:")
+            enteringSelection = input("Enter 0 for free drive mode, 1 for manual entering:")
+            if areaSelection == "0":
+                if enteringSelection == "0":
+                    print(setNewArea(robotArm))
+                    #pickupPointList.append(setNewArea(robotArm))
+                elif enteringSelection == "1":
+                    pickupPointList.append(arrDegreeToRads())
+            elif areaSelection == "1":
+                if enteringSelection == "0":
+                    deliveryPointList.append(setNewArea(robotArm))
+                elif enteringSelection == "1":
+                    deliveryPointList.append(arrDegreeToRads())
             # The data also need to be validated and I should make it so that people can enter their own joint values
             # I already made the function for this  ^
             programState = Modes.stop
@@ -192,8 +196,11 @@ def main():
 
         while programState == Modes.run:
             print(robotArm.get_pos())
+            print(robotArm.getj())
+            print("")
             # start run function
-            time.sleep(0.1)
+            time.sleep(1)
+        robotArm.close()
 
 
 
