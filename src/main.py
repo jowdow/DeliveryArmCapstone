@@ -10,16 +10,9 @@ class Modes(enum.Enum):
 
 
 # Custom class to allow for custom points
-class DeliveryPoint:
-    def __init__(self, jointsDegree, name):
-        self.jointsDegree = jointsDegree
-        self.name = name
-
-
-# Custom class to allow for custom points
-class PickupPoint:
-    def __init__(self, jointsDegree, name):
-        self.jointsDegree = jointsDegree
+class Point:
+    def __init__(self, joints, name):
+        self.jointsDegree = joints
         self.name = name
 
 
@@ -90,6 +83,7 @@ def arrDegreeToRads():
                 print("%s is invalid rad")
     return jointsAngleRads
 
+
 def validAngles(angles):
     jointNames = ["Base", "Shoulder", "Elbow", "Wrist 1", "Wrist 2", "Wrist 3"]
     for joint in angles:
@@ -102,13 +96,13 @@ def validAngles(angles):
 def printMenu():
     print("1) Start Program")
     print("2) something ")
-    print("3) something")
+    print("3) Test")
     print("4) Add Faces/Orders")
     print("5) Add Pick/Delivery Zones")
     print("0) Exit", end='')
 
 
-def setNewArea(arm):
+def setNewAreaFree(arm):
     print("You are about to enter free drive mode.")
     print("In this mode the arm will unlock and allow you to")
     print("psychically move the arm to the desired position.")
@@ -144,14 +138,24 @@ def setNewArea(arm):
     # This might need to be converted if so the function degreeToRads( variable ) should work
 
 
+def setNewAreaMan(arm):
+    name = input("What is the name of the position you are saving:")
+    joints = []
+    print("Move the arm to the desire position and then press enter to save the position")
+    if input() == "":
+        temp = arm.getj()
+        for x in temp:
+            joints.append(round(x, 2))
+        return Point(joints, name)
+
+
 def main():
     programState = Modes.stop
 
-    mainDeliveryPoint = DeliveryPoint([0, 1.57, -1.57, 3.14, -1.57, 1.57], "Main")
-    mainPickupPoint = PickupPoint([0, 1.57, -1.57, 3.14, -1.57, 1.57], "Main")
-
-    deliveryPointList = [mainDeliveryPoint]
-    pickupPointList = [mainPickupPoint]
+    deliveryPointList = []
+    pickupPointList = []
+    pickupPointList.append(Point([0.0602, -2.523, -0.314, 4.724, 1.531, -0.250], "frirst"))
+    pickupPointList.append(Point([-0.2, -2.523, -0.314, 4.723, 1.531, -0.250], "second"))
     # 192.168.50.2
     robotArm = urx.Robot("192.168.50.2")
     # The below set up is a random/default for the TCP and payload. Details on the numbers to put in is in the link below
@@ -169,7 +173,10 @@ def main():
         elif userChoice == 2:  # something
             programState = Modes.stop
         elif userChoice == 3:  # something
-            programState = Modes.stop
+            for x in pickupPointList:
+                print("Going to " + str(x.jointsDegree) + "      The name is " + x.name)
+                robotArm.movej(x.jointsDegree, 0.1, 0.05)
+                # time.sleep(1)
         elif userChoice == 4:  # Add Faces/Orders
             programState = Modes.stop
         elif userChoice == 5:  # Add Pick/Delivery Zones
@@ -178,21 +185,19 @@ def main():
             enteringSelection = input("Enter 0 for free drive mode, 1 for manual entering:")
             if areaSelection == "0":
                 if enteringSelection == "0":
-                    print(setNewArea(robotArm))
-                    #pickupPointList.append(setNewArea(robotArm))
+                    pickupPointList.append(setNewAreaFree(robotArm))
                 elif enteringSelection == "1":
-                    pickupPointList.append(arrDegreeToRads())
+                    pickupPointList.append(setNewAreaMan(robotArm))
             elif areaSelection == "1":
                 if enteringSelection == "0":
-                    deliveryPointList.append(setNewArea(robotArm))
+                    deliveryPointList.append(setNewAreaFree(robotArm))
                 elif enteringSelection == "1":
-                    deliveryPointList.append(arrDegreeToRads())
+                    deliveryPointList.append(setNewAreaMan(robotArm))
             # The data also need to be validated and I should make it so that people can enter their own joint values
             # I already made the function for this  ^
             programState = Modes.stop
         elif userChoice == 0:  # Exit
             programState = Modes.stop
-        print(programState)
 
         while programState == Modes.run:
             print(robotArm.get_pos())
@@ -201,7 +206,6 @@ def main():
             # start run function
             time.sleep(1)
         robotArm.close()
-
 
 
 if __name__ == '__main__':
