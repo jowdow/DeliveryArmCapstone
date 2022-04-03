@@ -29,8 +29,7 @@ def degreeToRads(angle):
         for joint in angle:
             jointsAngleRads.append(round(float(joint) * 0.01745, 2))
         return jointsAngleRads
-    else:
-        return round(angle * 0.01745, 2)
+    return round(angle * 0.01745, 2)
 
 
 # Purpose: Converting from radians to degrees
@@ -45,8 +44,7 @@ def radsToDegree(angle):
         for joint in angle:
             jointsAngleDegree.append(round(float(joint) * 57.29578, 2))
         return jointsAngleDegree
-    else:
-        return round(angle * 57.29578, 2)
+    return round(angle * 57.29578, 2)
 
 
 # Purpose: Converting from degrees to radians through print statements
@@ -85,8 +83,7 @@ def arrDegreeToRads():
             if 6.28 > angleRad > -6.28:
                 jointsAngleRads.append(angleRad)
                 break
-            else:
-                print("%s is invalid rad")
+            print("%s is invalid rad")
     return jointsAngleRads
 
 
@@ -136,9 +133,8 @@ def setNewAreaFree(arm):
         userChoice = input().lower()
         if userChoice == "go":
             break
-        else:
-            print("%s is not a valid option", userChoice)
-            print("")
+        print("%s is not a valid option", userChoice)
+        print("")
 
     arm.set_freedrive(True)
     # This should start some timer that will end if the user presses "enter" however if they don't it will end the loop
