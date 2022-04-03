@@ -1,9 +1,10 @@
 import time
 import urx
 import enum
-import keyboard
 
 
+# This is an enumeration that is planned to be used to tell if the arm is in running mode
+# This may be thrown away with time as it might not be necessary.
 class Modes(enum.Enum):
     stop = 1
     run = 2
@@ -26,7 +27,7 @@ def degreeToRads(angle):
     if isinstance(angle, list):
         jointsAngleRads = []
         for joint in angle:
-            jointsAngleRads.append(round(float(joint) * 0.01745), 2)
+            jointsAngleRads.append(round(float(joint) * 0.01745, 2))
         return jointsAngleRads
     else:
         return round(angle * 0.01745, 2)
@@ -42,12 +43,15 @@ def radsToDegree(angle):
     if isinstance(angle, list):
         jointsAngleDegree = []
         for joint in angle:
-            jointsAngleDegree.append(round(float(joint) * 57.29578), 2)
+            jointsAngleDegree.append(round(float(joint) * 57.29578, 2))
         return jointsAngleDegree
     else:
         return round(angle * 57.29578, 2)
 
 
+# Purpose: Converting from degrees to radians through print statements
+# Input(): N/A
+# Output(): Print statements
 def printDegreeToRads():
     jointNames = ["Base", "Shoulder", "Elbow", "Wrist 1", "Wrist 2", "Wrist 3"]
     jointsAngleRads = []
@@ -58,9 +62,9 @@ def printDegreeToRads():
     count = 0
     arrayLength = len(jointsAngleRads)
     for x in jointsAngleRads:
-        if (count == 0):
+        if count == 0:
             print("[", end='')
-        if (count == arrayLength - 1):
+        if count == arrayLength - 1:
             print("{:.2f}".format(x), end='')
         else:
             print("{:.2f}".format(x), end=',')
@@ -68,10 +72,12 @@ def printDegreeToRads():
     print("]")
 
 
+# Purpose: Converting from degrees to radians through print statements
+# Input(): N/A
+# Output(Type = float / list[float]): angle (In radians)
 def arrDegreeToRads():
     jointNames = ["Base", "Shoulder", "Elbow", "Wrist 1", "Wrist 2", "Wrist 3"]
     jointsAngleRads = []
-    angleRad = 0
     for joints in jointNames:
         while True:
             print("Give %s Angle in Degrees:" % joints, end='')
@@ -84,6 +90,9 @@ def arrDegreeToRads():
     return jointsAngleRads
 
 
+# Purpose: Validating degree angles
+# Input(Type = float / list[float]): angle (In Degrees)
+# Output(Type = Boolean): True / False
 def validAngles(angles):
     jointNames = ["Base", "Shoulder", "Elbow", "Wrist 1", "Wrist 2", "Wrist 3"]
     for joint in angles:
@@ -93,6 +102,9 @@ def validAngles(angles):
     return True
 
 
+# Purpose: Printing menu for selection
+# Input(): N/A
+# Output(): Print Statements
 def printMenu():
     print("1) Start Program")
     print("2) something ")
@@ -102,6 +114,9 @@ def printMenu():
     print("0) Exit", end='')
 
 
+# Purpose: Getting joints of arm through free drive mode
+# Input(Type = URRobot): arm
+# Output(Type = list[float]): arm.getj() (In Radians)
 def setNewAreaFree(arm):
     print("You are about to enter free drive mode.")
     print("In this mode the arm will unlock and allow you to")
@@ -126,7 +141,7 @@ def setNewAreaFree(arm):
             print("")
 
     arm.set_freedrive(True)
-    # This should start some timer that will end if the user presses enter however if they don't it will end the loop
+    # This should start some timer that will end if the user presses "enter" however if they don't it will end the loop
     print("The arm is in free drive mode, you can move it now.")
     print("")
     print("Press the enter key to lock the arm and save the position", end=':')
@@ -135,9 +150,11 @@ def setNewAreaFree(arm):
         arm.set_freedrive(False)
 
     return arm.getj()
-    # This might need to be converted if so the function degreeToRads( variable ) should work
 
 
+# Purpose: Getting joints of arm through manual manipulation
+# Input(Type = URRobot): arm
+# Output(Type = list[float]): arm.getj() (In Radians, rounded to the 2nd decimal place)
 def setNewAreaMan(arm):
     name = input("What is the name of the position you are saving:")
     joints = []
@@ -152,34 +169,38 @@ def setNewAreaMan(arm):
 def main():
     programState = Modes.stop
 
+    # This list stores all of the places for delivery zones
     deliveryPointList = []
-    pickupPointList = []
-    pickupPointList.append(Point([0.0602, -2.523, -0.314, 4.724, 1.531, -0.250], "frirst"))
-    pickupPointList.append(Point([-0.2, -2.523, -0.314, 4.723, 1.531, -0.250], "second"))
-    # 192.168.50.2
+    # This list stores all of the places for pickup zones
+    pickupPointList = [Point([0.0602, -2.523, -0.314, 4.724, 1.531, -0.250], "first"),
+                       Point([-0.2, -2.523, -0.314, 4.723, 1.531, -0.250], "second")]
+
+    # This is the current static IP address for the arm: 192.168.50.2
+    # When doing simulation on a local machine use the IP address "LocalHost"
     robotArm = urx.Robot("192.168.50.2")
-    # The below set up is a random/default for the TCP and payload. Details on the numbers to put in is in the link below
+
+    # The below set up is a random/default for the TCP and payload.Details on the numbers to put in is in the link below
     # https://academy.universal-robots.com/modules/e-Series%20core%20track/English/module3/story_html5.html?courseId=2166&language=English
     robotArm.set_tcp((0, 0, 0.1, 0, 0, 0))
     robotArm.set_payload(2, (0, 0, 0.1))
     time.sleep(0.2)  # leave some time to robot to process the setup commands
+
     print("Starting Main Loop")
     while True:
         printMenu()
         print(":")
         userChoice = int(input())
-        if userChoice == 1:  # Start Program
+        if userChoice == 1:  # Start Program:
             programState = Modes.run
-        elif userChoice == 2:  # something
+        elif userChoice == 2:  # something:
             programState = Modes.stop
-        elif userChoice == 3:  # something
+        elif userChoice == 3:  # Test: This is only meant to test if the pickup/delivery zone lists are working.
             for x in pickupPointList:
                 print("Going to " + str(x.jointsDegree) + "      The name is " + x.name)
                 robotArm.movej(x.jointsDegree, 0.1, 0.05)
-                # time.sleep(1)
-        elif userChoice == 4:  # Add Faces/Orders
+        elif userChoice == 4:  # Add Faces/Orders:
             programState = Modes.stop
-        elif userChoice == 5:  # Add Pick/Delivery Zones
+        elif userChoice == 5:  # Add Pick/Delivery Zones:
             # THIS ALL NEEDS TO BE VALIDATED
             areaSelection = input("Enter 0 for Pickup, 1 for delivery:")
             enteringSelection = input("Enter 0 for free drive mode, 1 for manual entering:")
@@ -196,9 +217,11 @@ def main():
             # The data also need to be validated and I should make it so that people can enter their own joint values
             # I already made the function for this  ^
             programState = Modes.stop
-        elif userChoice == 0:  # Exit
+        elif userChoice == 0:  # Exit: This is meant to close the program
             programState = Modes.stop
+            break
 
+        # This is a just a simple loop to test if the selection is working correctly
         while programState == Modes.run:
             print(robotArm.get_pos())
             print(robotArm.getj())
