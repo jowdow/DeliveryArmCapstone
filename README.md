@@ -86,7 +86,7 @@ This project is for ENGT 4050 Capstone and this is our project. I am the group l
 
 * [URX](https://pypi.org/project/urx/)
 * [OpenCV ](https://pypi.org/project/opencv-python/)
-* [Face Recognition Models](https://angular.io/)
+* [Face Recognition Models](https://pypi.org/project/face-recognition/)
 * [OS](https://docs.python.org/3/library/os.html)
 * [Numpy](https://pypi.org/project/numpy/)
 
@@ -114,9 +114,9 @@ If you are using an IDE install the libraries through it if it has a way( Someti
   ```sh
   pip install opencv-python
   ```
-* Face Recognition Models
+* Face Recognition
   ```sh
-  pip install face_recognition_models
+  pip install face_recognition
   ```
 * Numpy
   ```sh
@@ -125,17 +125,32 @@ If you are using an IDE install the libraries through it if it has a way( Someti
 
 ### Installation
 
+BEFORE TRYING TO INSTALL THE REPO PLEASE INSTALL ALL LIBRARIES. Also this install is only to be used if you are planning on directly connecting to the URe5 robotic arm. Simulation of the arm will be discussed in a later part.
+
 1. Clone the repo
    ```sh
    git clone https://github.com/jowdow/DeliveryArmCapstone
    ```
+2. Open in your prefered IDE
+
+3. Start the URe5 by press the power button the teach pendant
+
+4. Once ready the arm is ready to use navigate to the system settings
+   Change the IP address of the robotic arm to whatever you would like.
+   Keep in mind you will need to remeber this and this should be kept static
+   unless you know what you are doing. The program does not support dynamically
+   setting the IP address. 
+
+5. Set the IP address in the program
 
 ### As of now this is the end however I am adding more steps to statically set the IP and other misc stuff like for the raspberry PI
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
+### Simulation
+There is a way to install a virtual machine of the robotic arm OS and you can test your program that way. However I have had access to the arm enough to where this was not nessasary to do. The virtual machine [download](https://www.universal-robots.com/download/?query=sim) is dependent on what virtual machine software being used and the host pc's operatin system. Another factor is what version of the simulator you will use (Use the most up to date if you can).
 
-
+<p align="right">(<a href="#top">back to top</a>)</p>
 <!-- USAGE EXAMPLES -->
 ## Usage
 
