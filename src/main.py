@@ -1,6 +1,8 @@
 import time
 import urx
 import enum
+from simple_facerec import SimpleFacerec
+import cv2
 
 
 # This is an enumeration that is planned to be used to tell if the arm is in running mode
@@ -162,16 +164,65 @@ def setNewAreaMan(arm):
         return Point(joints, name)
 
 
-def main():
-    programState = Modes.stop
-    acc = 0.3
-    vel = 0.3    # This list stores all of the places for delivery zones
-    deliveryPointList = [Point([-1.52,-2.50,-1.16,0.60,1.60,0.10], "main")]
-    # This list stores all of the places for pickup zones
-    pickupPointList = [Point([0.07,-2.18,-1.62,0.67,1.50,0.10], "first"),
-                       Point([-0.15,-2.27,-1.48,0.65,1.75,0.10], "second")]
+def faceChecking(sfr,orders):
+    # Load Camera
+    cap = cv2.VideoCapture(0)
+    prevFace = "Unknown"  # This is used to compare the current face to
+    faceCount = 0  # Used to count if the same face has been detected multiple times
+    while True:
+        ret, frame = cap.read()  # Reading frame from video
 
-    intermidatePos = [0.04,-1.79,-2.26,0.98,1.61,0.10]
+        # Detect Faces
+        face_locations, face_names = sfr.detect_known_faces(frame)
+        if face_names == prevFace:
+            if faceCount <= 5:
+                print(faceCount)
+                faceCount += 1
+            else:
+                if face_names != "Unknown":
+                    if face_names in orders:
+                        cap.release()
+                        cv2.destroyAllWindows()
+                        return face_names
+        else:
+            prevFace = face_names
+            faceCount = 0
+        # All below is for printing video out and exiting looking
+        for face_loc, name in zip(face_locations, face_names):
+            y1, x2, y2, x1 = face_loc[0], face_loc[1], face_loc[2], face_loc[3]
+
+            cv2.putText(frame, name, (x1, y1 - 10), cv2.FONT_HERSHEY_DUPLEX, 1, (0, 0, 200), 2)
+            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 200), 4)
+
+        cv2.imshow("Frame", frame)
+
+        key = cv2.waitKey(1)
+        if key == 27:
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
+
+
+def main():
+    # Encode faces from a folder
+    sfr = SimpleFacerec()
+    sfr.load_encoding_images("images/")
+
+    programState = Modes.stop
+
+    ACC = 0.3
+    VEL = 0.3
+
+    userOrderDict = {"joe": "A1"}  # stores the user's name and where there order is
+
+    # This list stores all of the places for delivery zones
+    miscPointList = [Point([0.04, -1.79, -2.26, 0.98, 1.61, 0.10], "frontPick")]
+    # This list stores all of the places for delivery zones
+    deliveryPointList = []
+    # This list stores all of the places for pickup zones
+    pickupPointList = [Point([0.0602, -2.523, -0.314, 4.724, 1.531, -0.250], "A1"),
+                       Point([-0.2, -2.523, -0.314, 4.723, 1.531, -0.250], "A2")]
 
     # This is the current static IP address for the arm: 192.168.50.2
     # When doing simulation on a local machine use the IP address "LocalHost"
@@ -189,17 +240,17 @@ def main():
         print(":")
         userChoice = int(input())
         if userChoice == 1:  # Start Program:
-            programState = Modes.run
+            foundUser = faceChecking(sfr, userOrderDict)
+            area = userOrderDict[foundUser]
+            for point in pickupPointList:
+                if point.name == area:
+                    robotArm.movej(point.jointsDegree, ACC, VEL)
         elif userChoice == 2:  # something:
             programState = Modes.stop
         elif userChoice == 3:  # Test: This is only meant to test if the pickup/delivery zone lists are working.
-            robotArm.movej(intermidatePos, acc, vel)  # go to wait spot
             for x in pickupPointList:
                 print("Going to " + str(x.jointsDegree) + "      The name is " + x.name)
-                robotArm.movej(x.jointsDegree, acc, vel)
-            robotArm.movej(intermidatePos, acc, vel)  # go to wait spot
-            robotArm.movej(deliveryPointList[0].jointsDegree, acc, vel)  # go to delivery spot
-            robotArm.movej(intermidatePos, acc, vel)  # go to wait spot
+                robotArm.movej(x.jointsDegree, 0.1, 0.05)
         elif userChoice == 4:  # Add Faces/Orders:
             programState = Modes.stop
         elif userChoice == 5:  # Add Pick/Delivery Zones:
@@ -222,16 +273,7 @@ def main():
         elif userChoice == 0:  # Exit: This is meant to close the program
             programState = Modes.stop
             break
-
-        # This is a just a simple loop to test if the selection is working correctly
-        while programState == Modes.run:
-            print(robotArm.get_pos())
-            print(robotArm.getj())
-
-            print("")
-            # start run function
-            time.sleep(1)
-        robotArm.close()
+    robotArm.close()
 
 
 if __name__ == '__main__':
