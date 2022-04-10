@@ -164,7 +164,7 @@ def setNewAreaMan(arm):
         return Point(joints, name)
 
 
-def faceChecking(sfr,orders):
+def faceChecking(sfr, orders):
     # Load Camera
     cap = cv2.VideoCapture(0)
     prevFace = "Unknown"  # This is used to compare the current face to
