@@ -164,13 +164,16 @@ def setNewAreaMan(arm):
         return Point(joints, name)
 
 
+# Purpose: Identifying faces and comparing to current data set and if so, if they have an order
+# Input(Type = SimpleFacerec,Type = Dictionary): sfr , orders
+# Output(Type = String): face_names
 def faceChecking(sfr, orders):
     # Load Camera
     cap = cv2.VideoCapture(0)
-    prevFace = "Unknown"  # This is used to compare the current face to
+    prevFace = "Unknown"  # This is used to compare the current face name
     faceCount = 0  # Used to count if the same face has been detected multiple times
     while True:
-        ret, frame = cap.read()  # Reading frame from video
+        ret, frame = cap.read()  # Reading a frame from video
 
         # Detect Faces
         face_locations, face_names = sfr.detect_known_faces(frame)
@@ -197,7 +200,7 @@ def faceChecking(sfr, orders):
         cv2.imshow("Frame", frame)
 
         key = cv2.waitKey(1)
-        if key == 27:
+        if key == 27: # Escape Key
             break
 
     cap.release()
@@ -216,11 +219,11 @@ def main():
 
     userOrderDict = {"joe": "A1"}  # stores the user's name and where there order is
 
-    # This list stores all of the places for delivery zones
+    # This list stores all the places for misc zones
     miscPointList = [Point([0.04, -1.79, -2.26, 0.98, 1.61, 0.10], "frontPick")]
-    # This list stores all of the places for delivery zones
+    # This list stores all the places for delivery zones
     deliveryPointList = []
-    # This list stores all of the places for pickup zones
+    # This list stores all the places for pickup zones
     pickupPointList = [Point([0.0602, -2.523, -0.314, 4.724, 1.531, -0.250], "A1"),
                        Point([-0.2, -2.523, -0.314, 4.723, 1.531, -0.250], "A2")]
 
@@ -241,10 +244,19 @@ def main():
         userChoice = int(input())
         if userChoice == 1:  # Start Program:
             foundUser = faceChecking(sfr, userOrderDict)
-            area = userOrderDict[foundUser]
+            areaName = userOrderDict[foundUser]
+
+            robotArm.movej(miscPointList[0].jointsDegree, ACC, VEL)  # Going to Standby
+            #  For safety and best practice open the gripper here
             for point in pickupPointList:
-                if point.name == area:
-                    robotArm.movej(point.jointsDegree, ACC, VEL)
+                if point.name == areaName:
+                    robotArm.movej(point.jointsDegree, ACC, VEL)  # Going to Item area
+                    break
+            #  This is where you close the gripper
+            robotArm.movej(miscPointList[0].jointsDegree, ACC, VEL)  # Pulling out
+            robotArm.movej(deliveryPointList[0].jointsDegree, ACC, VEL)  # Going to delivery point
+            #  This is where you open the gripper
+            robotArm.movej(miscPointList[0].jointsDegree, ACC, VEL)  # Going to Standby
         elif userChoice == 2:  # something:
             programState = Modes.stop
         elif userChoice == 3:  # Test: This is only meant to test if the pickup/delivery zone lists are working.
