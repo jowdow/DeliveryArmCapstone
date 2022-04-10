@@ -158,18 +158,20 @@ def setNewAreaMan(arm):
     if input() == "":
         temp = arm.getj()
         for x in temp:
-            joints.append(round(x, 2))
+            joints.append(float(round(x, 2)))
         return Point(joints, name)
 
 
 def main():
     programState = Modes.stop
-
-    # This list stores all of the places for delivery zones
-    deliveryPointList = []
+    acc = 0.3
+    vel = 0.3    # This list stores all of the places for delivery zones
+    deliveryPointList = [Point([-1.52,-2.50,-1.16,0.60,1.60,0.10], "main")]
     # This list stores all of the places for pickup zones
-    pickupPointList = [Point([0.0602, -2.523, -0.314, 4.724, 1.531, -0.250], "first"),
-                       Point([-0.2, -2.523, -0.314, 4.723, 1.531, -0.250], "second")]
+    pickupPointList = [Point([0.07,-2.18,-1.62,0.67,1.50,0.10], "first"),
+                       Point([-0.15,-2.27,-1.48,0.65,1.75,0.10], "second")]
+
+    intermidatePos = [0.04,-1.79,-2.26,0.98,1.61,0.10]
 
     # This is the current static IP address for the arm: 192.168.50.2
     # When doing simulation on a local machine use the IP address "LocalHost"
@@ -191,9 +193,13 @@ def main():
         elif userChoice == 2:  # something:
             programState = Modes.stop
         elif userChoice == 3:  # Test: This is only meant to test if the pickup/delivery zone lists are working.
+            robotArm.movej(intermidatePos, acc, vel)  # go to wait spot
             for x in pickupPointList:
                 print("Going to " + str(x.jointsDegree) + "      The name is " + x.name)
-                robotArm.movej(x.jointsDegree, 0.1, 0.05)
+                robotArm.movej(x.jointsDegree, acc, vel)
+            robotArm.movej(intermidatePos, acc, vel)  # go to wait spot
+            robotArm.movej(deliveryPointList[0].jointsDegree, acc, vel)  # go to delivery spot
+            robotArm.movej(intermidatePos, acc, vel)  # go to wait spot
         elif userChoice == 4:  # Add Faces/Orders:
             programState = Modes.stop
         elif userChoice == 5:  # Add Pick/Delivery Zones:
@@ -221,6 +227,7 @@ def main():
         while programState == Modes.run:
             print(robotArm.get_pos())
             print(robotArm.getj())
+
             print("")
             # start run function
             time.sleep(1)
