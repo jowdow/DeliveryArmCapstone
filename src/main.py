@@ -166,7 +166,7 @@ def setNewAreaMan(arm):
 
 # Purpose: Identifying faces and comparing to current data set and if so, if they have an order
 # Input(Type = SimpleFacerec,Type = Dictionary): sfr , orders
-# Output(Type = String): face_names
+# Output(Type = String): face_name
 def faceChecking(sfr, orders):
     # Load Camera
     cap = cv2.VideoCapture(0)
@@ -177,18 +177,20 @@ def faceChecking(sfr, orders):
 
         # Detect Faces
         face_locations, face_names = sfr.detect_known_faces(frame)
-        if face_names == prevFace:
+        # Since a list is returned above this is used to prevent out of range issues
+        if not face_names:
+            face_name = ""
+        else:
+            face_name = face_names[0]
+        if face_name == prevFace and face_name != "":
             if faceCount <= 5:
-                print(faceCount)
+                print(str(faceCount) + str(face_name))  # HERE STRICTLY FOR TESTING
                 faceCount += 1
             else:
-                if face_names != "Unknown":
-                    if face_names in orders:
-                        cap.release()
-                        cv2.destroyAllWindows()
-                        return face_names
+                if face_name != "Unknown" and face_name in orders:
+                    break
         else:
-            prevFace = face_names
+            prevFace = face_name
             faceCount = 0
         # All below is for printing video out and exiting looking
         for face_loc, name in zip(face_locations, face_names):
@@ -200,17 +202,17 @@ def faceChecking(sfr, orders):
         cv2.imshow("Frame", frame)
 
         key = cv2.waitKey(1)
-        if key == 27: # Escape Key
+        if key == 27:  # Escape Key
             break
-
     cap.release()
     cv2.destroyAllWindows()
+    return face_name
 
 
 def main():
     # Encode faces from a folder
     sfr = SimpleFacerec()
-    sfr.load_encoding_images("images/")
+    sfr.load_encoding_images("faces/")
 
     programState = Modes.stop
 
@@ -229,7 +231,7 @@ def main():
 
     # This is the current static IP address for the arm: 192.168.50.2
     # When doing simulation on a local machine use the IP address "LocalHost"
-    robotArm = urx.Robot("192.168.50.2")
+    robotArm = urx.Robot("LocalHost")
 
     # The below set up is a random/default for the TCP and payload.Details on the numbers to put in is in the link below
     # https://academy.universal-robots.com/modules/e-Series%20core%20track/English/module3/story_html5.html?courseId=2166&language=English
