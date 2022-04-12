@@ -174,7 +174,18 @@ See the [open issues](https://github.com/github_username/repo_name/issues) for a
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
+<!-- Troublt Shooting -->
+## Trouble Shooting
 
+"ImportError: libcblas.so3: cannot open shared object file: No such file or directory". [link](https://stackoverflow.com/questions/53347759/importerror-libcblas-so-3-cannot-open-shared-object-file-no-such-file-or-dire) to solution
+  ```sh
+  sudo apt-get install libatlas-base-dev
+  ```
+"ImportError: ImportError: numpy.core.multiarray failed to import". [Link](https://stackoverflow.com/questions/20518632/importerror-numpy-core-multiarray-failed-to-import) to solution
+  ```sh
+  pip install -U numpy 
+  ```
+Issues of not being able to see and configure raspberry pi. [This](https://raspberrytips.com/remote-desktop-raspberry-pi/) talks about ways to connect to the pi to see the desktop.
 
 <!-- LICENSE -->
 ## License
