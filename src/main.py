@@ -113,6 +113,7 @@ def printMenu():
     print("0) Exit", end='')
 
 
+# ROBOT SENDS ERROR WHEN SENDING COMMAND TO ENTER FREE DRIVE MODE. THIS FUNCTION DOES NOT WORK
 # Purpose: Getting joints of arm through free drive mode
 # Input(Type = URRobot): arm
 # Output(Type = list[float]): arm.getj() (In Radians)
@@ -211,6 +212,7 @@ def faceChecking(sfr, orders):
 
 def main():
     # Encode faces from a folder
+    print("Starting to encode faces")
     sfr = SimpleFacerec()
     sfr.load_encoding_images("faces/")
 
@@ -245,6 +247,7 @@ def main():
         print(":")
         userChoice = int(input())
         if userChoice == 1:  # Start Program:
+
             foundUser = faceChecking(sfr, userOrderDict)
             areaName = userOrderDict[foundUser]
 
@@ -255,10 +258,13 @@ def main():
                     robotArm.movej(point.jointsDegree, ACC, VEL)  # Going to Item area
                     break
             #  This is where you close the gripper
+            time.sleep(1)  # Give time for the gripper to close
             robotArm.movej(miscPointList[0].jointsDegree, ACC, VEL)  # Pulling out
             robotArm.movej(deliveryPointList[0].jointsDegree, ACC, VEL)  # Going to delivery point
             #  This is where you open the gripper
+            time.sleep(1)  # Give time for the gripper to close
             robotArm.movej(miscPointList[0].jointsDegree, ACC, VEL)  # Going to Standby
+
         elif userChoice == 2:  # something:
             programState = Modes.stop
         elif userChoice == 3:  # Test: This is only meant to test if the pickup/delivery zone lists are working.
@@ -287,6 +293,10 @@ def main():
         elif userChoice == 0:  # Exit: This is meant to close the program
             programState = Modes.stop
             break
+        else:
+            print("That is an invalid input, please enter a number 0-5")
+
+    # Closing connection with arm
     robotArm.close()
 
 
