@@ -179,10 +179,10 @@ def faceChecking(sfr, orders):
         # Detect Faces
         face_locations, face_names = sfr.detect_known_faces(frame)
         # Since a list is returned above this is used to prevent out of range issues
-        if not face_names:
+        if not face_names:  # If not faces were found
             face_name = ""
         else:
-            face_name = face_names[0]
+            face_name = face_names[0]  # saving first face found
         if face_name == prevFace and face_name != "":
             if faceCount <= 5:
                 print(str(faceCount) + str(face_name))  # HERE STRICTLY FOR TESTING
