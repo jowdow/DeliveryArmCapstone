@@ -71,7 +71,7 @@
 
 <img src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.hmi-mbs.fr%2Fwp-content%2Fuploads%2F2020%2F08%2FUR5e-robot-collaboratif-UNIVERSAL-ROBOTS-automation.png&f=1&nofb=1" alt="Logo" width="450" height="512">
 
-This project is for ENGT 4050 Capstone and this is our project. I am the group leader for our 6 person team. The idea of our project was to create a more sanitary solution to item delivery in the real world. This brought us to using the URe5 robotic arm along with a Raspberry PI 4 with a PI camera V2 to run the software and collect video. The main idea is to use the arm to grab and place objects and use the PI camera and Raspberry PI to scan for faces to find customers/users to know what and where to place the items. The Raspberry PI will have a database of faces which matches with an order/s so the arm knows what and where to grab and place. In this project we also created our own end effector (gripper) to grab the items.
+This project is for ENGT 4050 Capstone and this is our project. I am the group leader for our 6 person team. The idea of our project was to create a more sanitary solution to item delivery in the real world. This brought us to using the URe5 robotic arm along with a Raspberry PI 4 with a PI camera V2 to run the software and collect video. The main idea is to use the arm to grab and place objects and use the PI camera and Raspberry PI to scan for faces to find customers/users to know what and where to place the items. The Raspberry PI will have a database of faces which matches with an order/s so the arm knows what and where to grab and place. In this project we also created our own end effector (gripper) to grab the items and this uses an Ardiuno Nano Connect.
 
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -132,7 +132,7 @@ If you are using an IDE,for the python portion, install the libraries through th
   ```
 #### Arduino Nano Connect
 
-Be sure to have the Arduino IDE[https://www.arduino.cc/en/software] downloaded. Open the IDE.
+Be sure to have the [Arduino IDE](https://www.arduino.cc/en/software) downloaded. Open the IDE.
 
 * Install the board manager for the Nano Connect
   * Tools -> Board -> Boards Manager -> In the search box type 
@@ -197,14 +197,9 @@ This system is meant to be in a place with storage slots that items can be picke
 
 ### Normal Operation
 
-1. Start the main program
-  * The faces in the faces folder will be encoded
-  * You will then be prompted on what action you would like
-2. Enter 1 to start the main program
-  * A window will display (If you have a minitor connected )
-3. 
+This is a [link](https://youtu.be/27ypUMn-c7k) to a demo of how the program would function. In the video my face is identified and the robotic arm moves and "picks up" my order and "delivers" it.
 
-_For more examples, please refer to the [Documentation](https://example.com)_
+Other modes of operations are adding zones for pick up/delivery zones. As well as adding faces to be encoded.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
