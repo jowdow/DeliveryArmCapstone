@@ -241,6 +241,14 @@ def main():
     robotArm.set_payload(2, (0, 0, 0.1))
     time.sleep(0.2)  # leave some time to robot to process the setup commands
 
+    def grasp(self, current=None):
+        self.robot.set_digital_out(4, 1)
+        self.robot.set_digital_out(3, 0)
+
+    def release(self, current=None):
+        self.robot.set_digital_out(4, 0)
+        self.robot.set_digital_out(3, 1)
+
     print("Starting Main Loop")
     while True:
         printMenu()
